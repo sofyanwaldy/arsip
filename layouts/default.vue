@@ -64,15 +64,15 @@ export default {
           to: '/'
         },
         {
-          icon: 'mdi-cloud-upload',
-          title: 'Upload dokumen',
-          to: '/upload-document'
-        },
-        {
           icon: 'mdi-view-list',
-          title: 'penerima beasiswa',
+          title: 'Penerima Beasiswa',
           to: '/list'
         },
+        // {
+        //   icon: 'mdi-view-list',
+        //   title: 'penerima beasiswa',
+        //   to: '/list'
+        // },
         {
           icon: 'mdi-settings',
           title: 'Pengaturan',
