@@ -48,53 +48,76 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      userId: '',
+      userID: '',
       file: [],
-      notFound: false,
       documents: []
     }
   },
-  async asyncData({ query }) {
-    const userId = query.uid
-    const apiUrl = process.env.API_URL + '/documents?user_id=' + userId
-    const documents = await axios.get(apiUrl).then((response) => response.data)
-    if (!userId) {
-      return {
-        notFound: true,
-        documents: []
-      }
-    }
-    const docs = documents[0]
-    const dt = Object.keys(docs).map((item, i) => {
-      const res = {
-        key: 'file' + i,
-        label: item
-      }
-      if (docs[item] !== null) {
-        res.name = docs[item]
-      }
-      return res
-    })
+  asyncData({ query }) {
     return {
-      documents: dt,
-      userId
+      query,
+      userID: query.uid
+    }
+  },
+  async created() {
+    const userID = this.query.uid
+    if (!userID) {
+      this.notFound = true
+    }
+    const data = await this.fetchDocument(userID)
+    if (data) {
+      this.notFound = false
+      this.documents = data
     }
   },
   methods: {
     fileChange(e) {
-      console.log(Object.keys(this.file))
-      console.log(e.name)
+      if (e) {
+        console.info('name', e.name)
+        console.info('key', Object.keys(this.file))
+      }
     },
     async upload(i) {
       const apiUrl = process.env.API_URL + '/documents'
       const uploadData = new FormData()
-      console.log('file', this.file[i])
-      uploadData.append('user_id', this.userId)
+      uploadData.append('user_id', this.userID)
+      uploadData.append('field', i)
       uploadData.append('dokumen', this.file[i])
       const upload = await axios
         .post(apiUrl, uploadData)
         .then((response) => response.data)
-      console.log(upload)
+      if (upload) {
+        const userID = this.query.uid
+        if (!userID) {
+          this.notFound = true
+        }
+        const data = await this.fetchDocument(userID)
+        if (data) {
+          this.notFound = false
+          this.documents = data
+        }
+      }
+    },
+    async fetchDocument(userID) {
+      const apiUrl = process.env.API_URL + '/documents?user_id=' + userID
+      const documents = await axios
+        .get(apiUrl)
+        .then((response) => response.data)
+      if (!userID) {
+        return false
+      }
+      const docs = documents[0]
+      const data = Object.keys(docs).map((item, i) => {
+        const res = {
+          key: 'file' + i,
+          label: item
+        }
+        if (docs[item] !== null) {
+          res.name = docs[item]
+        }
+        return res
+      })
+      return data
     }
   }
 }

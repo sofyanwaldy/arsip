@@ -3,17 +3,24 @@ const path = require('path')
 const multer = require('multer')
 const apis = express.Router();
 const db = require('./config.js')
+const fieldList = require('./fieldList.js')
 const uploadPath = path.resolve(__dirname, '../media/')
+
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    console.log('body', req.body.user)
     cb(null, uploadPath);
   },
   filename: function (req, file, cb) {
-    cb(null , file.originalname);
+    const userID = req.body.user_id
+    const fieldID = req.body.field
+    const baseName = path.basename(file.originalname)
+    const fileName = userID + '_' + fieldID + '_' + baseName
+    req.fileName = fileName
+    cb(null , fileName);
+    // next()
   }
 });
-const upload = multer({ storage: storage }).single('dokumen')
+const upload = multer({ storage: storage })
 
 apis.get('/recipients', (req, res) => {
   let page = req.query.page || 1
@@ -116,75 +123,90 @@ apis.post('/recipients', (req, res) => {
 })
 
 apis.get('/documents', (req, res) => {
-  try {
-    const userId = req.query.user_id
-    if (!userId) throw new Error('user id is required')
-    const query = 'select * from documents where user_id=' + userId
-    db.all(query, (err, rows) => {
-      if (err) res.json({ message: 'error when get documents' })
-      if (rows && rows.length > 0) {
-        const rowMap = rows.map((item) => {
-          return {
-            "Foto Terbaru": item.foto || '',
-            "Fotocopy KTP": item.indentity_card || '',
-            "Fotocopy kartu pegawai": item.employee_card || '',
-            "Fotocopy NPWP": item.tax_card || '',
-            "Fotocopy halaman muka buku tabungan": item.bank_account_book || '',
-            "Formulir data diri": item.form || '',
-            "Surat pernyataan pemilihan program studi": item.statement_study_program || '',
-            "TOEFL": item.toefl || '',
-            "Surat tugas belajar": item.study_assignment || '',
-            "Perjanjian tugas belajar": item.study_statement || '',
-            "Data pembiayaan beasiswa": item.scholarship_data || '',
-            "Transkrip nilai": item.transcript || '',
-            "Ijazah": item.certificate || '',
-            "tesis": item.thesis || '',
-            "Ringkasan penelitian": item.research_summary || '',
-            "From penempatan": item.placement_form || '',
-            "Financial guarantee": item.financial_guarantee || ''
-          }
-        })
-        res.json(rowMap)
-      } else {
-        res.json([
-          {
-            "Foto Terbaru": '',
-            "Fotocopy KTP": '',
-            "Fotocopy kartu pegawai": '',
-            "Fotocopy NPWP": '',
-            "Fotocopy halaman muka buku tabungan": '',
-            "Formulir data diri": '',
-            "Surat pernyataan pemilihan program studi": '',
-            "TOEFL": '',
-            "Surat tugas belajar": '',
-            "Perjanjian tugas belajar": '',
-            "Data pembiayaan beasiswa": '',
-            "Transkrip nilai": '',
-            "Ijazah": '',
-            "tesis": '',
-            "Ringkasan penelitian": '',
-            "From penempatan": '',
-            "Financial guarantee": ''
-          }
-        ])
-      }
-    })
-  } catch (err) {
-    res.json({ message: err })
-  }
+  const userId = req.query.user_id
+  if (!userId) throw new Error('user id is required')
+  const query = 'select * from documents where user_id=' + userId
+  db.all(query, (err, rows) => {
+    if (err) return res.json({ message: 'error when get documents' })
+    if (rows && rows.length > 0) {
+      const rowMap = rows.map((item) => {
+        return {
+          "Foto Terbaru": item.foto || '',
+          "Fotocopy KTP": item.indentity_card || '',
+          "Fotocopy kartu pegawai": item.employee_card || '',
+          "Fotocopy NPWP": item.tax_card || '',
+          "Fotocopy halaman muka buku tabungan": item.bank_account_book || '',
+          "Formulir data diri": item.form || '',
+          "Surat pernyataan pemilihan program studi": item.statement_study_program || '',
+          "TOEFL": item.toefl || '',
+          "Surat tugas belajar": item.study_assignment || '',
+          "Financial guarantee": item.financial_guarantee || '',
+          "Perjanjian tugas belajar": item.study_statement || '',
+          "Data pembiayaan beasiswa": item.scholarship_data || '',
+          "Transkrip nilai": item.transcript || '',
+          "Ijazah": item.certificate || '',
+          "tesis": item.thesis || '',
+          "Ringkasan penelitian": item.research_summary || '',
+          "From penempatan": item.placement_form || ''
+        }
+      })
+      res.json(rowMap)
+    } else {
+      res.json([
+        {
+          "Foto Terbaru": '',
+          "Fotocopy KTP": '',
+          "Fotocopy kartu pegawai": '',
+          "Fotocopy NPWP": '',
+          "Fotocopy halaman muka buku tabungan": '',
+          "Formulir data diri": '',
+          "Surat pernyataan pemilihan program studi": '',
+          "TOEFL": '',
+          "Surat tugas belajar": '',
+          "Financial guarantee": '',
+          "Perjanjian tugas belajar": '',
+          "Data pembiayaan beasiswa": '',
+          "Transkrip nilai": '',
+          "Ijazah": '',
+          "tesis": '',
+          "Ringkasan penelitian": '',
+          "From penempatan": ''
+        }
+      ])
+    }
+  })
 })
 
-apis.post('/documents', (req, res) => {
-  // console.log(req)
-  upload(req, res, function (err) {
-    if (err instanceof multer.MulterError) {
-      // res.statusCode = 500
-      console.log(err)
-    } else if (err) {
-      // res.statusCode = 500
-      console.log(err)
-    }
-    // res.send('berhasil upload')
-  })
+apis.post('/documents', upload.single('dokumen'), (req, res) => {
+  if (req.file) {
+    const field = fieldList[req.body.field]
+    const userID = req.body.user_id
+    const qFindUserDoc = `SELECT user_id from documents where user_id= ?`
+    const fileName = req.fileName
+    db.get(qFindUserDoc, [userID], (err, row)  => {
+      if (err) {
+        return res.json({
+          message: err
+        })
+      }
+      if (row) {
+        const qUpdate = `UPDATE documents set ${field}=? where user_id= ?`
+        db.run(qUpdate, [fileName, userID], (err) => {
+          if (err) return console.error(err)
+          res.json({
+            message: 'dokumen berhasil di upload'
+          })
+        })
+      } else {
+        const qInsert = `INSERT INTO documents(${field}, user_id) values (?, ?)`
+        db.run(qInsert, [fileName, userID], (err) => {
+          if (err) return console.error(err)
+          res.json({
+            message: 'dokumen berhasil di upload'
+          })
+        })
+      }
+    })
+  }
 })
 module.exports = apis
