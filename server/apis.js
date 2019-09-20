@@ -5,6 +5,7 @@ const apis = express.Router();
 const db = require('./config.js')
 const fieldList = require('./fieldList.js')
 const uploadPath = path.resolve(__dirname, '../media/')
+const fs = require('fs')
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -181,7 +182,7 @@ apis.post('/documents', upload.single('dokumen'), (req, res) => {
   if (req.file) {
     const field = fieldList[req.body.field]
     const userID = req.body.user_id
-    const qFindUserDoc = `SELECT user_id from documents where user_id= ?`
+    const qFindUserDoc = `SELECT user_id from documents WHERE user_id= ?`
     const fileName = req.fileName
     db.get(qFindUserDoc, [userID], (err, row)  => {
       if (err) {
@@ -190,7 +191,7 @@ apis.post('/documents', upload.single('dokumen'), (req, res) => {
         })
       }
       if (row) {
-        const qUpdate = `UPDATE documents set ${field}=? where user_id= ?`
+        const qUpdate = `UPDATE documents set ${field}=? WHERE user_id= ?`
         db.run(qUpdate, [fileName, userID], (err) => {
           if (err) return console.error(err)
           res.json({
@@ -208,5 +209,35 @@ apis.post('/documents', upload.single('dokumen'), (req, res) => {
       }
     })
   }
+})
+
+apis.delete('/documents/:doc/:uid/:field', (req, res) => {
+  const userID = req.params.uid
+  const field = fieldList[req.params.field]
+  const filename = req.params.doc
+  const file = uploadPath + '/' + filename
+  console.log(userID)
+  if (!userID) return res.json({ message: 'user tidak ditemukan'})
+  fs.unlink(file, (err) => {
+    if (err) return res.json({ message: err})
+    const qSelect = 'SELECT user_id from documents WHERE user_id = ?'
+    db.run(qSelect, [userID], (err, row) => {
+      if (err) return res.json({ message: err })
+      if (row) {
+        const qUpdate = `UPDATE documents set ${field}=? WHERE user_id= ?`
+        db.run(qUpdate, ['', userID], (err) => {
+          if (!err) {
+            return res.json({ message: 'dokumen berhasil dihapus'})
+          }
+        })
+      } else {
+        const qDelete = 'DELETE FROM documents WHERE user_id= ?'
+        db.run(qDelete, [userID], (err) => {
+          if (!err) return res.json({message: 'dokumen berhasil dihapus'})
+        }) 
+      }
+
+    })
+  })
 })
 module.exports = apis

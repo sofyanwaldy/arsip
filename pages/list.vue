@@ -127,7 +127,7 @@
       >
         <template v-slot:item.action="{ item }">
           <nuxt-link :to="'documents/?uid=' + item.no">
-            <v-icon small class="mr-2">mdi-folder-open</v-icon>
+            <!-- <v-icon small class="mr-2">mdi-folder-open</v-icon> -->
             Lihat dokumen
           </nuxt-link>
         </template>

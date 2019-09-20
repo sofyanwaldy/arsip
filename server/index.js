@@ -4,10 +4,12 @@ const { Nuxt, Builder } = require('nuxt')
 const apis = require('./apis')
 const app = express()
 const bodyParser = require('body-parser')
+const path = require('path')
 
 // Import and Set Nuxt.js options
 const config = require('../nuxt.config.js')
 config.dev = process.env.NODE_ENV !== 'production'
+app.use('/media', express.static(path.resolve(__dirname, '../media/')))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use('/apis', apis)
