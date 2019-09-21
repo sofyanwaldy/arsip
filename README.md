@@ -15,7 +15,8 @@ git clone https://github.com/sofyanwaldy/arsip.git
 
 1. pastikan folder dimana tempat file di download / clone
 2. masuk ke folder dimana file di download / clone via terminal (Linux/Macbook) atau CMD (windows)
-3. ['kalau hasil clone secara default nama file arsip/, kalau hasil download extract file dan secara default namafile arsip-master/']
+3. ['kalau hasil clone secara default nama file arsip/, 
+kalau hasil download extract file dan secara default namafile arsip-master/']
 (windows) jika lokasi ada di D maka ketik d: [enter] 
 kemudian ketik: cd namaFile/ [ex: cd arsip/]
 (Linux) cd /lokasiFile kalau download biasanya di cd /user/username/Downloads/namaFolder ['enter']
