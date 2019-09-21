@@ -1,8 +1,10 @@
 require('dotenv').config()
 const colors = require('vuetify/es5/util/colors').default
+const bodyParser = require('body-parser')
+const session = require('express-session')
 
 module.exports = {
-  mode: 'spa',
+  // mode: 'spa',
   /*
    ** Headers of the page
    */
@@ -83,6 +85,16 @@ module.exports = {
   env: {
     API_URL: process.env.API_URL
   },
+  serverMiddleware: [
+    bodyParser.json(),
+    // session middleware
+    session({
+      secret: 'super-secret-key',
+      resave: false,
+      saveUninitialized: false
+    }),
+    '~/auth'
+  ],
   /*
    ** Build configuration
    */

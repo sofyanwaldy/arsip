@@ -79,7 +79,12 @@
           <v-card-actions>
             <div class="flex-grow-1"></div>
             <v-btn color="blue darken-1" text @click="close">Batal</v-btn>
-            <v-btn color="blue darken-1" text @click="save">Simpan</v-btn>
+            <v-btn v-if="editable" color="blue darken-1" text @click="update"
+              >Ubah</v-btn
+            >
+            <v-btn v-else color="blue darken-1" text @click="save"
+              >Simpan</v-btn
+            >
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -130,6 +135,10 @@
             <!-- <v-icon small class="mr-2">mdi-folder-open</v-icon> -->
             Lihat dokumen
           </nuxt-link>
+          &nbsp;&nbsp;
+          <v-btn color="primary" small @click="edit(item)">edit</v-btn>
+          &nbsp;
+          <v-btn color="error" small @click="hapus(item.no)">hapus</v-btn>
         </template>
       </v-data-table>
       <v-row justify="center">
@@ -152,16 +161,18 @@
 import axios from 'axios'
 
 export default {
+  middleware: 'auth',
   data() {
     return {
       page: 1,
-      limit: 5,
+      limit: 10,
       totalPage: 0,
       valid: true,
       dialog: false,
       dialogAngkatan: false,
       success: false,
       message: '',
+      uid: null,
       nama: '',
       nip: '',
       unit: '',
@@ -169,6 +180,7 @@ export default {
       angkatanNew: '',
       angkatanCombo: '',
       angkatanId: 0,
+      editable: false,
       nameRules: [(v) => !!v || 'Nama wajib diisi'],
       angkatanRules: [(v) => !!v || 'Angkatan wajib diisi'],
       nipRules: [
@@ -205,18 +217,16 @@ export default {
       val || this.close()
     }
   },
+  asyncData({ store }) {
+    console.log(store.state)
+  },
   created() {
     const query = { page: this.page, limit: this.limit, sortBy: 'desc' }
     this.initialData(query)
     this.initialAngkatan()
   },
-  mounted() {
-    console.log(this.page)
-    console.log('recipient total', this.recipientTotal)
-  },
   methods: {
     async initialData(query) {
-      console.log(query)
       const { page, limit, sortBy, angkatan } = query
       let apiUrl =
         process.env.API_URL +
@@ -232,7 +242,6 @@ export default {
         .get(apiUrl)
         .then((response) => response.data)
       const data = recipients.data
-      console.log(data)
       this.recipientTotal = recipients.total
       this.totalPage = Math.ceil(recipients.total / this.limit)
       this.listRecipient = data
@@ -241,7 +250,6 @@ export default {
       const apiUrl = process.env.API_URL + '/angkatan'
       const angkatan = await axios.get(apiUrl).then((response) => response.data)
       this.listAngkatan = angkatan
-      console.log(this.listRecipient)
     },
     show(id) {
       console.log(id)
@@ -253,6 +261,7 @@ export default {
     angkatanNext(val) {
       const angkatanId = val.angkatan_id
       this.angkatanId = angkatanId
+      this.page = 1
       const query = {
         page: this.page,
         limit: this.limit,
@@ -277,13 +286,13 @@ export default {
             this.success = true
             this.message = response.data.message
             this.listAngkatan = response.data.data
+            this.close()
           })
       }
     },
     save() {
       if (this.$refs.form.validate()) {
         const apiUrl = process.env.API_URL + '/recipients'
-        console.log('angkatan', this.angkatan.angkatan_id)
         axios
           .post(apiUrl, {
             nama: this.nama,
@@ -308,6 +317,58 @@ export default {
         this.unit = ''
         this.initialData(query)
         this.close()
+      }
+    },
+    async hapus(id) {
+      const ask = confirm('yakin mau hapus ? ')
+      if (ask) {
+        const apiUrl = process.env.API_URL + '/recipients/' + id
+        const { data } = await axios.delete(apiUrl)
+        if (data) {
+          this.success = true
+          this.message = data.message
+          const query = { page: 1, limit: this.limit, sortBy: 'desc' }
+          this.initialData(query)
+        }
+      }
+    },
+    edit(item) {
+      const findAngkatan = this.listAngkatan.find((obj) => {
+        return obj.angkatan_id === item.angkatan
+      })
+      console.info(findAngkatan)
+      this.uid = item.no
+      this.dialog = true
+      this.nama = item.nama
+      this.unit = item.unit
+      this.angkatan = findAngkatan
+      this.nip = item.nip
+      this.editable = true
+    },
+    async update() {
+      if (this.$refs.form.validate()) {
+        const apiUrl = process.env.API_URL + '/recipients/' + this.uid
+        const { data } = await axios.put(apiUrl, {
+          nama: this.nama,
+          unit: this.unit,
+          nip: this.nip,
+          angkatan: this.angkatan.angkatan_id
+        })
+        if (data) {
+          this.success = true
+          this.message = data.message
+          this.uid = ''
+          this.nama = ''
+          this.unit = ''
+          this.angkatan = ''
+          this.nip = ''
+          this.editable = false
+          this.page = 1
+          const query = { page: this.page, limit: this.limit, sortBy: 'desc' }
+          this.initialData(query)
+          this.initialAngkatan()
+          this.close()
+        }
       }
     }
   }

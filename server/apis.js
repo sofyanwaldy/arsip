@@ -23,6 +23,26 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage })
 
+apis.post('/login', (req, res) => {
+  const username = req.body.username
+  const password = req.body.password
+  const qSelect = 'SELECT * from admin WHERE username=? AND password=?'
+  // console.log(qSelect, [])
+  db.all(qSelect,[username, password], (err, row) => {
+    if (err) return res.json({ message: err })
+    if (row.length > 0) {
+      console.log('row from express', row[0])
+      req.session.authUser = { username: row[0].username }
+      console.log(req.session)
+      return res.json({ 
+        message: 'Login berhasil',
+        username: row[0].username
+      })
+    }
+    else return res.json({message: 'username atau password salah'})
+  })
+})
+
 apis.get('/recipients', (req, res) => {
   let page = req.query.page || 1
   let limit = req.query.limit || 10
@@ -66,6 +86,64 @@ apis.get('/recipients', (req, res) => {
   })
 })
 
+apis.get('/recipients/:id', (req, res) => {
+  const userID = req.params.id
+  const qSelect = `SELECT * from users WHERE user_id=?`
+  db.all(qSelect, [userID], (err, row) => {
+    if (err) return res.json({ message: err })
+    return res.json(row)
+  })
+})
+apis.post('/recipients', (req, res) => {
+  const body = req.body
+  const nama = body.nama
+  const nip = body.nip
+  const unit = body.unit
+  const angkatan = body.angkatan
+  const query = `insert into users(user_name, user_nip, angkatan_id, user_unit) values (?, ?, ?, ?)`
+  db.run(query, [nama, nip, angkatan, unit], (err) => {
+    if (err) {
+      res.json({
+        message: 'data gagal disimpan'
+      })
+    }
+    res.json({
+      message: 'data berhasil disimpan'
+    })
+  })
+})
+
+apis.delete('/recipients/:id', (req, res) => {
+  const userID = req.params.id
+  const qDelete = 'DELETE FROM users where user_id=?'
+  db.run(qDelete, [userID], (err) => {
+    if (err) return res.json({ message: err })
+    return res.json({
+      message: 'Data berhasil dihapus'
+    })
+  })
+})
+
+apis.put('/recipients/:id', (req, res) => {
+  const body = req.body
+  const userID = req.params.id
+  const nama = body.nama
+  const nip = body.nip
+  const unit = body.unit
+  const angkatan = body.angkatan
+  const qUpdate = 
+    `UPDATE users SET
+      user_name=?,
+      user_nip=?,
+      angkatan_id=?,
+      user_unit=?
+    WHERE user_id=?`
+  db.run(qUpdate, [nama, nip, angkatan, unit, userID], (err) => {
+    if (err) return res.json({ message : err})
+    return res.json({ message: 'data  user berhasil diperbaharui'})
+  })
+})
+
 apis.get('/angkatan', (req, res) => {
   db.serialize(() => {
     let query = 'select * from angkatan order by angkatan_id desc'
@@ -100,25 +178,6 @@ apis.post('/angkatan', (req, res) => {
           res.json(result)
         } 
       })
-    })
-  })
-})
-
-apis.post('/recipients', (req, res) => {
-  const body = req.body
-  const nama = body.nama
-  const nip = body.nip
-  const unit = body.unit
-  const angkatan = body.angkatan
-  const query = `insert into users(user_name, user_nip, angkatan_id, user_unit) values (?, ?, ?, ?)`
-  db.run(query, [nama, nip, angkatan, unit], (err) => {
-    if (err) {
-      res.json({
-        message: 'data gagal disimpan'
-      })
-    }
-    res.json({
-      message: 'data berhasil disimpan'
     })
   })
 })
@@ -240,4 +299,17 @@ apis.delete('/documents/:doc/:uid/:field', (req, res) => {
     })
   })
 })
+
+apis.post('/editpass', (req, res) => {
+  const password = req.body.password
+  const qUpdate = 'UPDATE admin set password=? WHERE id=1'
+  db.run(qUpdate, [password], (err) => {
+    if (err) {
+      return res.json({ message: err})
+    } else {
+      return res.json({ message: 'password berhasil di ubah'})
+    }
+  })
+})
+
 module.exports = apis

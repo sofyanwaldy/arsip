@@ -4,6 +4,24 @@
       <v-alert v-if="notFound" type="warning">
         Dokumen tidak ditemukan
       </v-alert>
+      <v-card v-else class="mx-auto text-left">
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title v-if="user.length > 0">
+              <v-chip class="ma-2" color="primary" label>
+                Nama : {{ user[0].user_name }}
+              </v-chip>
+              <v-chip class="ma-2" color="primary" label>
+                NIP : {{ user[0].user_nip }}
+              </v-chip>
+              <v-chip class="ma-2" color="primary" label>
+                Unit : {{ user[0].user_unit }}
+              </v-chip>
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-card>
+      <br />
       <v-alert v-if="success" type="warning">
         {{ message }}
       </v-alert>
@@ -21,11 +39,7 @@
             <td class="text-left">{{ i + 1 }}</td>
             <td class="text-left">{{ item.label }}</td>
             <td v-if="!item.name" class="text-left">
-              <v-file-input
-                v-model="file[i]"
-                label="pilih file"
-                @change="fileChange"
-              ></v-file-input>
+              <v-file-input v-model="file[i]" label="pilih file"></v-file-input>
             </td>
             <td v-if="item.name" class="text-left">
               <v-btn :href="'/media/' + item.name" text color="primary">{{
@@ -59,6 +73,7 @@
 import axios from 'axios'
 
 export default {
+  middleware: 'auth',
   data() {
     return {
       notFound: false,
@@ -66,7 +81,8 @@ export default {
       message: '',
       userID: '',
       file: [],
-      documents: []
+      documents: [],
+      user: []
     }
   },
   asyncData({ query }) {
@@ -86,13 +102,17 @@ export default {
       this.documents = data
     }
   },
+  mounted() {
+    this.fetchUser(this.userID)
+    console.info(this.user)
+  },
   methods: {
-    fileChange(e) {
-      if (e) {
-        console.info('name', e.name)
-        console.info('key', Object.keys(this.file))
-      }
-    },
+    // fileChange(e) {
+    //   if (e) {
+    //     console.info('name', e.name)
+    //     console.info('key', Object.keys(this.file))
+    //   }
+    // },
     async upload(i) {
       const apiUrl = process.env.API_URL + '/documents'
       const uploadData = new FormData()
@@ -134,7 +154,6 @@ export default {
         }
         return res
       })
-      console.log(data)
       return data
     },
     async hapus(field, doc) {
@@ -159,6 +178,15 @@ export default {
             this.documents = data
           }
         }
+      }
+    },
+    async fetchUser(userID) {
+      const apiUrl = process.env.API_URL + '/recipients/' + userID
+      const { data } = await axios.get(apiUrl)
+      if (data.length > 0) {
+        this.user = data
+      } else {
+        this.notFound = true
       }
     }
   }

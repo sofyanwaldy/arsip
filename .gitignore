@@ -93,5 +93,5 @@ sw.*
 #nodeenv
 .nodeenv
 
-#media
-media/
+# #media
+# media/*
