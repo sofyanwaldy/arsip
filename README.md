@@ -4,18 +4,20 @@
 
 ## cara instalasi
 
-aplikasi bisa berjalan dengan nodejs versi 10.16.3 pastikan di komputer terinstall nodejs tersebut https://nodejs.org/en/
+aplikasi bisa berjalan dengan nodejs versi 10.16.3 https://nodejs.org/en/ pastikan di komputer terinstall nodejs tersebut 
+``` bash
 
-download atau clone repository
-aplikasi bisa di jalankan tanpa git dengan cara download melalui link yang ada di atas
+# download atau clone repository
+download melalui link yang ada di atas
 
 jika menggunakan clone pastikan git sudah di install download disini https://git-scm.com/
 git clone https://github.com/sofyanwaldy/arsip.git
 
 1. pastikan folder dimana tempat file di download / clone
 2. masuk ke folder dimana file di download / clone via terminal (Linux/Macbook) atau CMD (windows)
-3. 
-(windows) jika lokasi ada di D maka ketik d: [enter] kemudian ketik: cd arsip/ jika nama filenya arsip hasil dari clone ketik cd arsip-master/ jika namanya filenya arsip-master 
+3. ['kalau hasil clone secara default nama file arsip/, kalau hasil download extract file dan secara default namafile arsip-master/']
+(windows) jika lokasi ada di D maka ketik d: [enter] 
+kemudian ketik: cd namaFile/ [ex: cd arsip/]
 (Linux) cd /lokasiFile kalau download biasanya di cd /user/username/Downloads/namaFolder ['enter']
 (Macbook) cd /User/user/Downloads/namaFolder [enter]
 4. ketik: npm install 
@@ -26,7 +28,7 @@ lewati step 1-5 jika file sudah didownload/clone dan step 4 dan 5 sudah dilakuka
 silahkan masuk ke folder dengan ketik cd namaFolder lakukan hanya step 6 npm start
 
 kemudian buka di browser localhost:3000
-
+```
 ## build setup untuk menggunakan npm
 ``` bash
 # install dependencies
