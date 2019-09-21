@@ -195,15 +195,15 @@ apis.get('/documents', (req, res) => {
           "Fotocopy KTP": item.indentity_card || '',
           "Fotocopy kartu pegawai": item.employee_card || '',
           "Fotocopy NPWP": item.tax_card || '',
-          "Fotocopy halaman muka buku tabungan": item.bank_account_book || '',
-          "Formulir data diri": item.form || '',
+          "Fotocopy halaman muka buku tabungan": item.bank_accounts_book || '',
+          "Formulir data diri": item.forms || '',
           "Surat pernyataan pemilihan program studi": item.statement_study_program || '',
           "TOEFL": item.toefl || '',
           "Surat tugas belajar": item.study_assignment || '',
           "Financial guarantee": item.financial_guarantee || '',
           "Perjanjian tugas belajar": item.study_statement || '',
           "Data pembiayaan beasiswa": item.scholarship_data || '',
-          "Transkrip nilai": item.transcript || '',
+          "Transkrip nilai": item.transcripts || '',
           "Ijazah": item.certificate || '',
           "tesis": item.thesis || '',
           "Ringkasan penelitian": item.research_summary || '',
@@ -254,7 +254,7 @@ apis.post('/documents', upload.single('dokumen'), (req, res) => {
         db.run(qUpdate, [fileName, userID], (err) => {
           if (err) return console.error(err)
           res.json({
-            message: 'dokumen berhasil di upload'
+            message: 'dokumen berhasil di upload updated'
           })
         })
       } else {
@@ -262,7 +262,7 @@ apis.post('/documents', upload.single('dokumen'), (req, res) => {
         db.run(qInsert, [fileName, userID], (err) => {
           if (err) return console.error(err)
           res.json({
-            message: 'dokumen berhasil di upload'
+            message: 'dokumen berhasil di upload inserted'
           })
         })
       }
@@ -275,22 +275,21 @@ apis.delete('/documents/:doc/:uid/:field', (req, res) => {
   const field = fieldList[req.params.field]
   const filename = req.params.doc
   const file = uploadPath + '/' + filename
-  console.log(userID)
   if (!userID) return res.json({ message: 'user tidak ditemukan'})
   fs.unlink(file, (err) => {
     if (err) return res.json({ message: err})
-    const qSelect = 'SELECT user_id from documents WHERE user_id = ?'
-    db.run(qSelect, [userID], (err, row) => {
+    const qSelect = 'SELECT user_id from documents WHERE user_id=?'
+    db.all(qSelect, [userID], (err, row) => {
       if (err) return res.json({ message: err })
       if (row) {
-        const qUpdate = `UPDATE documents set ${field}=? WHERE user_id= ?`
+        const qUpdate = `UPDATE documents set ${field}=? WHERE user_id=?`
         db.run(qUpdate, ['', userID], (err) => {
           if (!err) {
             return res.json({ message: 'dokumen berhasil dihapus'})
           }
         })
       } else {
-        const qDelete = 'DELETE FROM documents WHERE user_id= ?'
+        const qDelete = 'DELETE FROM documents WHERE user_id=?'
         db.run(qDelete, [userID], (err) => {
           if (!err) return res.json({message: 'dokumen berhasil dihapus'})
         }) 

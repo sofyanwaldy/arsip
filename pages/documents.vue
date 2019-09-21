@@ -42,9 +42,13 @@
               <v-file-input v-model="file[i]" label="pilih file"></v-file-input>
             </td>
             <td v-if="item.name" class="text-left">
-              <v-btn :href="'/media/' + item.name" text color="primary">{{
-                item.name
-              }}</v-btn>
+              <v-btn
+                :href="'/media/' + item.name"
+                text
+                color="primary"
+                target="_blank"
+                >{{ item.name }}</v-btn
+              >
               <v-btn
                 color="error"
                 depressed
@@ -167,6 +171,7 @@ export default {
           this.userID +
           '/' +
           field
+        console.log(apiUrl)
         const delDocument = await axios.delete(apiUrl)
         if (delDocument) {
           const data = await this.fetchDocument(this.query.uid)

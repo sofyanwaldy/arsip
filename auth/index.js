@@ -29,6 +29,7 @@ router.post('/login', (req, res) => {
   db.all(qSelect,[username, password], (err, row) => {
     if (err) return res.json({ message: err })
     if (row.length > 0) {
+      req.session.cookie.expires = false;
       req.session.authUser = { username: row[0].username }
       return res.json({
         success: 1,
