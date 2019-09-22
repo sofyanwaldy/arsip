@@ -21,9 +21,10 @@ kalau hasil download extract file dan secara default namafile arsip-master/']
 kemudian ketik: cd namaFile/ [ex: cd arsip/]
 (Linux) cd /lokasiFile kalau download biasanya di cd /user/username/Downloads/namaFolder ['enter']
 (Macbook) cd /User/user/Downloads/namaFolder [enter]
-4. ketik: npm install 
-5. ketik: npm build
-6. ketik: npm start
+4. jika belum ada folder media silahkan ditambahkan folder media di dalam folder project arsip
+5. ketik: npm install
+6. ketik: npm run build
+7. ketik: npm start
 
 lewati step 1-5 jika file sudah didownload/clone dan step 4 dan 5 sudah dilakukan 
 silahkan masuk ke folder dengan ketik cd namaFolder lakukan hanya step 6 npm start
