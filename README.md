@@ -14,7 +14,7 @@ jika menggunakan clone pastikan git sudah di install download disini https://git
 git clone https://github.com/sofyanwaldy/arsip.git
 
 1. pastikan folder dimana tempat file di download / clone
-2. masuk ke folder dimana file di download / clone via terminal (Linux/Macbook) atau CMD (windows)
+2. Buka terminal(Linux/Macbook) atau CMD (windows)
 3. ['kalau hasil clone secara default nama file arsip/, 
 kalau hasil download extract file dan secara default namafile arsip-master/']
 (windows) jika lokasi ada di D maka ketik d: [enter] 
@@ -26,8 +26,8 @@ kemudian ketik: cd namaFile/ [ex: cd arsip/]
 6. ketik: npm run build
 7. ketik: npm start
 
-lewati step 1-5 jika file sudah didownload/clone dan step 4 dan 5 sudah dilakukan 
-silahkan masuk ke folder dengan ketik cd namaFolder lakukan hanya step 6 npm start
+lewati step 1-5 jika file sudah didownload/clone dan step 4 - 6 sudah dilakukan 
+silahkan masuk ke folder dengan ketik cd namaFolder lakukan hanya step terakhir yaitu npm start
 
 kemudian buka di browser localhost:3000
 ```
@@ -37,7 +37,7 @@ kemudian buka di browser localhost:3000
 $ npm install
 
 # serve with hot reload at localhost:3000
-$ npm run dev
+$ npm run dev #untuk development
 
 # build for production and launch server
 $ npm run build
@@ -62,4 +62,15 @@ $ yarn start
 
 # generate static project
 $ yarn generate
+
+```
+
+## git command yang sering digunakan
+``` bash
+selengkapnya ada di https://git-scm.com/docs
+git status --> untuk melihat status file yang masuk ke git selengkapnya https://git-scm.com/book/id/v1/Dasar-dasar-Git-Merekam-Perubahan-ke-dalam-Repositori
+git add namaFile --> untuk menambahkan nama file kita kedalam git status file akan berubah staged
+git commit -m "pesan commit" --> untuk commit perubahan setelah kita add
+git push origin master --> untuk push file hasil commit kedalam repository git
+git pull origin master --> untuk menarik file dari repository kedalam project lokal 
 ```
