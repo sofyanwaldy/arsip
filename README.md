@@ -37,14 +37,14 @@ kemudian buka di browser localhost:3000
 $ npm install
 
 # serve with hot reload at localhost:3000
-$ npm dev
+$ npm run dev
 
 # build for production and launch server
-$ yarn build
-$ yarn start
+$ npm run build
+$ npm  start
 
 # generate static project
-$ yarn generate
+$ npm generate
 ``` 
 
 ## Build Setup untuk menggunakan yarn 
