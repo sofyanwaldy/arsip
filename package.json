@@ -11,8 +11,9 @@
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
   },
-  "engine": {
-    "node":"10.16.3"
+  "engines": {
+    "node": "10.16.3",
+    "npm": "6.13.0"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.3.6",
